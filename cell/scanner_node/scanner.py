@@ -39,7 +39,7 @@ class Scan(Node):
         response.success = True
         response.message = self.last_barcode
         return response
-        
+#    
 def main():
         rclpy.init()
         node = Scan()
