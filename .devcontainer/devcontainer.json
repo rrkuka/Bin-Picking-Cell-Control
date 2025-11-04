@@ -1,0 +1,13 @@
+{
+  "name": "ros2-humble",
+  "image": "ros:humble-ros-base",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-azuretools.vscode-docker",
+        "ms-vscode-remote.remote-containers"
+      ]
+    }
+  }
+}
