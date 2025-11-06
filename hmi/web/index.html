@@ -1,0 +1,83 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <title>Cell HMI</title>
+  <script src="https://unpkg.com/roslib/build/roslib.min.js"></script>
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Arial;margin:24px;max-width:960px}
+    .row{display:flex;gap:12px;align-items:center;margin:8px 0}
+    .card{border:1px solid #ddd;border-radius:12px;padding:12px;margin:10px 0}
+    .lamp{width:20px;height:20px;border-radius:50%;border:1px solid #333}
+    pre{background:#111;color:#efe;padding:8px;border-radius:8px;overflow:auto}
+    button{padding:6px 10px;border-radius:8px;border:1px solid #aaa;background:#f6f6f6;cursor:pointer}
+  </style>
+</head>
+<body>
+  <h2>Cell HMI</h2>
+  <div class="row">ROS: <span id="conn">connecting…</span></div>
+
+  <div class="card">
+    <div class="row"><b>Emergency button:</b> <span id="eb">—</span></div>
+    <div class="row"><b>Door handle:</b> <span id="door">—</span></div>
+    <div class="row"><b>Stack-light:</b> <div id="lamp" class="lamp"></div> <span id="lampv">—</span></div>
+    <div class="row" style="gap:8px;margin-top:8px">
+      <button id="press">/press</button>
+      <button id="release">/release</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <b>Request</b>
+    <pre id="req">{}</pre>
+    <b>Response</b>
+    <pre id="resp">{}</pre>
+  </div>
+
+<script>
+  // 1) Connect (browser -> rosbridge). Use localhost because rosbridge is published on host:9090.
+  const ros = new ROSLIB.Ros({ url: 'ws://localhost:9090' });
+
+  const conn = document.getElementById('conn');
+  ros.on('connection', () => conn.textContent = 'connected');
+  ros.on('error',      () => conn.textContent = 'error');
+  ros.on('close',      () => conn.textContent = 'closed');
+
+  // 2) Helpers
+  const ebEl = document.getElementById('eb');
+  const doorEl = document.getElementById('door');
+  const lamp = document.getElementById('lamp');
+  const lampv = document.getElementById('lampv');
+  const reqEl = document.getElementById('req');
+  const respEl = document.getElementById('resp');
+
+  const colorFor = v => (v===0?'green': v===1?'gold': v===-1?'red':'gray');
+
+  // 3) Subscribers
+  new ROSLIB.Topic({ros, name:'/e_button_status', messageType:'std_msgs/Bool'})
+    .subscribe(msg => { ebEl.textContent = msg.data ? 'PRESSED' : 'RELEASED'; });
+
+  new ROSLIB.Topic({ros, name:'/door_status', messageType:'std_msgs/Bool'})
+    .subscribe(msg => { doorEl.textContent = msg.data ? 'OPEN' : 'CLOSED'; });
+
+  new ROSLIB.Topic({ros, name:'/stack_light_state', messageType:'std_msgs/Int8'})
+    .subscribe(msg => { lamp.style.background = colorFor(msg.data); lampv.textContent = '('+msg.data+')'; });
+
+  new ROSLIB.Topic({ros, name:'/request_info', messageType:'std_msgs/String'})
+    .subscribe(msg => { try{ reqEl.textContent = JSON.stringify(JSON.parse(msg.data), null, 2); } catch{ reqEl.textContent = msg.data; } });
+
+  new ROSLIB.Topic({ros, name:'/response_info', messageType:'std_msgs/String'})
+    .subscribe(msg => { try{ respEl.textContent = JSON.stringify(JSON.parse(msg.data), null, 2); } catch{ respEl.textContent = msg.data; } });
+
+  // 4) Services (/press, /release) – std_srvs/Trigger
+  function trigger(name){
+    const srv = new ROSLIB.Service({ros, name, serviceType:'std_srvs/Trigger'});
+    srv.callService(new ROSLIB.ServiceRequest({}), res => {
+      console.log(name, res); // optional
+    });
+  }
+  document.getElementById('press').onclick   = () => trigger('/press');
+  document.getElementById('release').onclick = () => trigger('/release');
+</script>
+</body>
+</html>

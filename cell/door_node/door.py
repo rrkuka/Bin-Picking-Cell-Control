@@ -1,7 +1,6 @@
 import rclpy
 from rclpy.node import Node
 from std_msgs.msg import Bool
-from std_srvs.srv import Trigger
 import random
 
 # Create door node     
@@ -13,7 +12,7 @@ class Door(Node):
         self.publisher = self.create_publisher(Bool,'door_status',10)
 
         # publish current door status
-        self.create_timer(0.5,self.publish_door_status)
+        self.create_timer(5.0,self.publish_door_status)
 
 
     # Publish random events of door status
@@ -23,7 +22,7 @@ class Door(Node):
         self.publisher.publish(msgs)
         print('Door Status:',msgs.data)
 
-#    
+    
 def main():
         rclpy.init()
         node = Door()

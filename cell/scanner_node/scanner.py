@@ -12,21 +12,22 @@ def make_barcode():
 class Scan(Node): 
     def __init__(self):
         super().__init__('scan')
-        self.last_scan = '00000'
+        self.last_barcode = make_barcode()
 
         # Create topic 
         self.publisher = self.create_publisher(String,'barcode',10)
+        self.publish_barcode()
 
         # Call publisher barcode number
         self.create_timer(2,self.publish_barcode)
 
         # create service to calling last barcode 
-        self.create_service(Trigger, 'last_barcode',self.handle_service)
+        self.create_service(Trigger, '/last_barcode',self.handle_service)
 
         # Start up msg
         self.get_logger().info('Barcode started')
 
-    # make barcode number and publish
+    # Call barcode number and publish
     def publish_barcode(self):
         self.last_barcode = make_barcode()
         msgs = String()

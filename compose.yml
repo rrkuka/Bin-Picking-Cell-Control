@@ -1,0 +1,58 @@
+services:
+  wms:
+    build:
+      context: ./wms
+      dockerfile: Dockerfile
+    container_name: wms
+    environment:
+      - ROS_DOMAIN_ID=0
+      - PYTHONUNBUFFERED=1
+    ports:
+      - "8080:8080"
+    networks: [rosnet]
+
+  robot:
+    build:
+      context: ./cell
+      dockerfile: Dockerfile
+    container_name: robot
+    environment:
+      - ROS_DOMAIN_ID=0
+      - PYTHONUNBUFFERED=1
+    ports:
+      - "8081:8081"
+    networks: [rosnet]
+
+  nodes:
+    build:
+      context: ./cell
+      dockerfile: ../nodes/Dockerfile
+    container_name: nodes
+    environment:
+      - ROS_DOMAIN_ID=0
+    networks: [rosnet]
+
+  rosbridge:
+    image: ros:humble-ros-core
+    container_name: rosbridge
+    command: >
+      bash -lc "apt-get update &&
+      apt-get install -y ros-humble-rosbridge-server &&
+      . /opt/ros/humble/setup.bash &&
+      ros2 run rosbridge_server rosbridge_websocket --address 0.0.0.0 --port 9090"
+    ports:
+      - "9090:9090"
+    networks: [rosnet]
+
+  webhmi:
+    build:
+      context: ./hmi
+      dockerfile: Dockerfile
+    container_name: webhmi
+    ports:
+      - "8089:80"
+    networks: [rosnet]
+    depends_on: [rosbridge]
+
+networks:
+  rosnet: {}
