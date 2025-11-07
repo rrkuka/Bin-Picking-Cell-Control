@@ -11,6 +11,7 @@ Before running, install:
 
 
 Once installed, clone this repo and run the commands below.
+git clone https://github.com/rrkuka/Bin-Picking-Cell-Control.git
 
 ---
 
