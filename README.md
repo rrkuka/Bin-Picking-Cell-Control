@@ -44,7 +44,7 @@ You’ll see live ROS 2 data for:
 ### 3. Send a Test Pick
 Run this in your terminal:
 ```bash
-curl -X POST http://localhost:8080/Pick   -H "Content-Type: application/json"   -d '{"pickId":145,"quantity":2}'
+curl -X POST http://localhost:8080/pick   -H "Content-Type: application/json"   -d '{"pickId":145,"quantity":2}'
 ```
 The HMI will update both **Request** and **Response** panels.
 
