@@ -8,10 +8,10 @@ class Door(Node):
     def __init__(self):
         super().__init__('door')
 
-        # Create topic 
+        # Create pub 
         self.publisher = self.create_publisher(Bool,'door_status',10)
 
-        # publish current door status
+        # Create timer that publishes every T=time
         self.create_timer(5.0,self.publish_door_status)
 
 

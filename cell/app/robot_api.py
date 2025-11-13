@@ -26,8 +26,8 @@ def svc(name):
     
     fut = client.call_async(Trigger.Request())
     rclpy.spin_until_future_complete(ros, fut)
-    
     ros.destroy_client(client)
+    
     if fut.result() is None:
         return False, "no_response"
     res = fut.result()

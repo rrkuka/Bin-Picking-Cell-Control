@@ -10,7 +10,7 @@ class Ebutton(Node):
         super().__init__('ebutton')
 
         # Intial state
-        self.pressed = False
+        self.pressed = None
 
         # Create topic 
         self.publisher = self.create_publisher(Bool,'e_button_status',10)

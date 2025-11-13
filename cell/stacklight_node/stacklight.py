@@ -3,7 +3,7 @@ from rclpy.node import Node
 from std_srvs.srv import Trigger
 from std_msgs.msg import Bool, Int8, String
 
-# Create door node     
+# Create stacklight node     
 class Stacklight(Node): 
     def __init__(self):
         super().__init__('stack_light')
@@ -20,12 +20,12 @@ class Stacklight(Node):
         self.create_subscription(Bool,'/door_status',self.door_msg,10)
         self.create_subscription(Bool,'/e_button_status',self.estop_msg,10)
         
-        # create service to calling last barcode 
+        # create service for calling stacklight state 
         self.create_service(Trigger, '/get_stacklight_state',self.stacklight_state)
 
 
 
-    # Publish random events of door status
+    # Publish events for various states 
     def estop_msg(self,msgs):
         self.estop_pressed = msgs.data
         self.get_logger().info(f'E-stop: {self.estop_pressed}')
